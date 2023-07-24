@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+        .error {color: #FF0000;}
+    </style>
+    <script type="text/javascript">
+
+        function getAge(){
+            var dob = document.getElementById('bday').value;
+            dob = new Date(dob);
+            var today = new Date();
+            var age = Math.floor((today-dob) / (365.25 * 24 * 60 * 60 * 1000));
+            document.getElementById('age').value=age;
+        }
+    </script>
+</head>
+
+
+<div  class="alert alert-success alert-dismissible" id="success" style="display:none;">
+	  <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+	</div>
+<form id="fupForm" name="form1" method="post">
+    <body style="margin: auto;width: 40%; margin-top:100px;">
+        <label>Full Name</label>
+        <input type="text" id="fullname" name="fullname" class="form-control"/>
+        <span class="error">* <?php echo $nameErr; ?> </span>  
+        <label>Email</label>
+        <input type="email" id="emailAdd" name="emailAdd" class="form-control"/>
+        <span class="error">* <?php echo $emailErr; ?> </span> 
+        <label>Contact number</label>
+        <input type="text" id="phone" name="phone" class="form-control"/>
+        <span class="error">* <?php echo $mobilenoErr; ?> </span>
+        <label>Birthday</label>
+        <input type="date" id="bday" name="bday" onblur="getAge();" placeholder="YYYY-MM-DD" class="form-control"/>
+       
+        <label>Age</label>
+        <input type="text" id="age" name="age" class="form-control" readonly/>
+        <label>Gender</label>
+        <select name="gender" id="gender" class="form-control" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Others">Others</option>
+        </select>
+        
+<br><br>
+        <button type="submit" name="save" class="btn btn-primary" value="Save to database" id="butsave">Enter details</button>
+    </body>
+</form>
+
+</html>
+
+
+<script>
+$(document).ready(function() {
+$('#butsave').on('click', function() {
+$("#butsave").attr("disabled", "disabled");
+var fullname = $('#fullname').val();
+var emailAdd = $('#emailAdd').val();
+var phone = $('#phone').val();
+var bday = $('#bday').val();
+var age = $('#age').val();
+var gender = $('#gender').val();
+if(fullname!="" && emailAdd!="" && phone!="" && bday!="" && age!="" && gender!=""){
+	$.ajax({
+		url: "save.php",
+		type: "POST",
+		data: {
+			fullname: fullname,
+			emailAdd: emailAdd,
+			phone: phone,
+			bday: bday,
+            age: age,
+            gender: gender			
+		},
+		cache: false,
+		success: function(dataResult){
+			var dataResult = JSON.parse(dataResult);
+			if(dataResult.statusCode==200){
+				$("#butsave").removeAttr("disabled");
+				$('#fupForm').find('input:text').val('');
+				$("#success").show();
+				$('#success').html('Data added successfully !'); 						
+			}
+			else if(dataResult.statusCode==201){
+				alert("Error occured !");
+			}
+			
+		}
+	});
+	}
+	else{
+		alert('Please fill all the field !');
+	}
+});
+});
+</script>
